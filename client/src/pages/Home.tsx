@@ -2,24 +2,10 @@
  * Grant ROI & Szilard Point Calculator
  * Design: Bold Policy Brief — deep navy, amber accent, Playfair Display + Inter
  *
- * Revisions applied:
- * 1. User-input fields clearly labelled
- * 2. Currency-agnostic (no AUD specification)
- * 3. Generic global language, examples only where helpful
- * 4. "Annualised Expected Grant Value" terminology from manuscript
- * 5. CI labels are generic (Investigator A/B/etc.), annual salary clearly stated
- * 6. Per-CI individual FTE input; salary cost = Σ(salary_i × FTE_i)
- * 7. ROI=1 annotated as "Szilard Point" on gauge and chart
- * 8. Verdict banner larger and more alarming
- * 9. Szilard Point card shows FTE value prominently
- * 10. Related Research links to key references from the manuscript
- *
- * Formula (Ni & Nanan 2026):
- *   ROI = Annualised Expected Grant Value / Σ(Salary_i × FTE_i)
+ * Formula (Ni & Nanan 2026, Authorea DOI: 10.22541/au.176918698.87912423):
+ *   ROI = Annualised Expected Grant Value / (Total Salary × FTE)
  *   Annualised EGV = (Grant Amount × Success Rate) / Grant Duration
- *   Szilard Point = FTE at which ROI = 1
- *     → for uniform FTE: FTE* = Annualised EGV / Total Salary
- *     → for per-CI FTE: shown as current ROI vs threshold
+ *   Szilard Point FTE* = Annualised EGV / Total Salary  (FTE at which ROI = 1)
  */
 
 import { useState, useMemo, useCallback } from "react";
@@ -50,7 +36,6 @@ interface CI {
   id: string;
   label: string;
   annualSalary: string;
-  fte: string; // individual % time on this grant application
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -110,20 +95,19 @@ function ROIGauge({ roi }: { roi: number | null }) {
   const nx = cx + 58 * Math.cos(needleRad);
   const ny = cy + 58 * Math.sin(needleRad);
 
-  // Szilard point marker at ROI = 1 (1/3 of max)
+  // Szilard Point marker at ROI = 1 (1/3 of max scale)
   const szilardAngle = startAngle + sweepAngle * (1 / maxVal);
   const szilardRad = toRad(szilardAngle);
   const sx1 = cx + 60 * Math.cos(szilardRad);
   const sy1 = cy + 60 * Math.sin(szilardRad);
   const sx2 = cx + 82 * Math.cos(szilardRad);
   const sy2 = cy + 82 * Math.sin(szilardRad);
-  // Label position
-  const slx = cx + 92 * Math.cos(szilardRad);
-  const sly = cy + 92 * Math.sin(szilardRad);
+  const slx = cx + 93 * Math.cos(szilardRad);
+  const sly = cy + 93 * Math.sin(szilardRad);
 
-  let color = "oklch(0.60 0.18 145)"; // green
-  if (roi !== null && roi < 1.0) color = "oklch(0.60 0.20 25)"; // red
-  else if (roi !== null && roi < 1.5) color = "oklch(0.75 0.15 65)"; // amber
+  let color = "oklch(0.60 0.18 145)";
+  if (roi !== null && roi < 1.0) color = "oklch(0.60 0.20 25)";
+  else if (roi !== null && roi < 1.5) color = "oklch(0.75 0.15 65)";
 
   return (
     <div className="flex flex-col items-center">
@@ -146,40 +130,14 @@ function ROIGauge({ roi }: { roi: number | null }) {
             strokeLinecap="round"
           />
         )}
-        {/* Szilard point tick */}
+        {/* Szilard Point tick mark */}
         <line x1={sx1} y1={sy1} x2={sx2} y2={sy2} stroke="oklch(0.75 0.15 65)" strokeWidth="2.5" />
-        {/* Szilard point label */}
-        <text
-          x={slx}
-          y={sly + 4}
-          fontSize="7.5"
-          fill="oklch(0.85 0.12 65)"
-          textAnchor="middle"
-          fontFamily="Inter, sans-serif"
-          fontWeight="600"
-        >
-          Szilard
-        </text>
-        <text
-          x={slx}
-          y={sly + 13}
-          fontSize="7.5"
-          fill="oklch(0.85 0.12 65)"
-          textAnchor="middle"
-          fontFamily="Inter, sans-serif"
-          fontWeight="600"
-        >
-          Point
-        </text>
+        {/* Szilard Point label */}
+        <text x={slx} y={sly + 3} fontSize="7.5" fill="oklch(0.85 0.12 65)" textAnchor="middle" fontFamily="Inter, sans-serif" fontWeight="600">Szilard</text>
+        <text x={slx} y={sly + 12} fontSize="7.5" fill="oklch(0.85 0.12 65)" textAnchor="middle" fontFamily="Inter, sans-serif" fontWeight="600">Point</text>
         {/* Needle */}
         {roi !== null && (
-          <line
-            x1={cx} y1={cy}
-            x2={nx} y2={ny}
-            stroke="oklch(0.94 0.01 255)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
+          <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="oklch(0.94 0.01 255)" strokeWidth="2.5" strokeLinecap="round" />
         )}
         <circle cx={cx} cy={cy} r="5" fill="oklch(0.94 0.01 255)" />
         {/* Scale labels */}
@@ -221,16 +179,20 @@ function CustomTooltip({ active, payload, label }: any) {
       }}
     >
       <div style={{ color: "oklch(0.55 0.04 255)", fontSize: "0.75rem" }}>
-        Uniform FTE: {(label * 100).toFixed(1)}%
+        FTE: {(label * 100).toFixed(1)}%
       </div>
       <div style={{ color, fontWeight: 600 }}>ROI: {fmt(roi, 3)}</div>
     </div>
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Reference links ──────────────────────────────────────────────────────────
 
 const REFERENCE_LINKS = [
+  {
+    label: "Ni & Nanan (2026) — Preprint (Authorea) — This model",
+    url: "https://www.authorea.com/doi/full/10.22541/au.176918698.87912423/v1",
+  },
   {
     label: "Dresler et al. (2022) — Nature Human Behaviour",
     url: "https://www.nature.com/articles/s41562-021-01286-3",
@@ -249,17 +211,22 @@ const REFERENCE_LINKS = [
   },
 ];
 
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 export default function Home() {
-  // ── Grant inputs ──
+  // Grant inputs
   const [grantAmount, setGrantAmount] = useState<string>("1000000");
   const [successRate, setSuccessRate] = useState<string>("12");
   const [grantDuration, setGrantDuration] = useState<string>("3");
 
-  // ── CI team ──
+  // CI team (salary only — shared FTE applies to all)
   const [cis, setCIs] = useState<CI[]>([
-    { id: uid(), label: "Investigator A", annualSalary: "180000", fte: "15" },
-    { id: uid(), label: "Investigator B", annualSalary: "130000", fte: "15" },
+    { id: uid(), label: "Investigator A", annualSalary: "180000" },
+    { id: uid(), label: "Investigator B", annualSalary: "130000" },
   ]);
+
+  // Single shared FTE for the whole team
+  const [teamFTE, setTeamFTE] = useState<string>("15");
 
   const [showFormula, setShowFormula] = useState(false);
   const [showRefs, setShowRefs] = useState(false);
@@ -269,35 +236,28 @@ export default function Home() {
     const amount = parseFloat(grantAmount.replace(/,/g, "")) || 0;
     const rate = parseFloat(successRate) / 100 || 0;
     const duration = parseFloat(grantDuration) || 3;
+    const fte = parseFloat(teamFTE) / 100 || 0;
 
-    // Per-CI salary cost = salary_i × (fte_i / 100)
-    const ciData = cis.map((ci) => ({
-      label: ci.label,
-      salary: parseFloat(ci.annualSalary.replace(/,/g, "")) || 0,
-      fte: parseFloat(ci.fte) / 100 || 0,
-      cost: (parseFloat(ci.annualSalary.replace(/,/g, "")) || 0) * (parseFloat(ci.fte) / 100 || 0),
-    }));
-
-    const totalSalary = ciData.reduce((s, c) => s + c.salary, 0);
-    const totalWritingCost = ciData.reduce((s, c) => s + c.cost, 0);
+    const totalSalary = cis.reduce(
+      (sum, ci) => sum + (parseFloat(ci.annualSalary.replace(/,/g, "")) || 0),
+      0
+    );
 
     if (amount <= 0 || rate <= 0 || duration <= 0 || totalSalary <= 0) return null;
 
     // Formula (2): Annualised Expected Grant Value
     const annualisedEGV = (amount * rate) / duration;
 
-    // Formula (1): ROI = Annualised EGV / Total Writing Cost
-    const roi = totalWritingCost > 0 ? annualisedEGV / totalWritingCost : null;
+    // Salary cost of writing = Total Salary × FTE
+    const writingCost = totalSalary * fte;
 
-    // Szilard Point FTE (uniform FTE scenario for the chart)
+    // Formula (1): ROI
+    const roi = fte > 0 ? annualisedEGV / writingCost : null;
+
+    // Szilard Point FTE (ROI = 1)
     const szilardFTE = annualisedEGV / totalSalary;
 
-    // Average FTE across CIs (for chart reference line)
-    const avgFTE = ciData.length > 0
-      ? ciData.reduce((s, c) => s + c.fte, 0) / ciData.length
-      : 0;
-
-    // Chart: ROI vs uniform FTE (0.5% to 50%)
+    // Chart: ROI vs FTE from 0.5% to 50%
     const chartData = Array.from({ length: 100 }, (_, i) => {
       const f = (i + 1) / 200;
       return {
@@ -307,19 +267,12 @@ export default function Home() {
     });
 
     return {
-      amount,
-      rate,
-      duration,
-      totalSalary,
-      totalWritingCost,
-      annualisedEGV,
-      roi,
-      szilardFTE,
-      avgFTE,
+      amount, rate, duration, fte,
+      totalSalary, writingCost,
+      annualisedEGV, roi, szilardFTE,
       chartData,
-      ciData,
     };
-  }, [grantAmount, successRate, grantDuration, cis]);
+  }, [grantAmount, successRate, grantDuration, cis, teamFTE]);
 
   // ── CI management ──
   const addCI = useCallback(() => {
@@ -330,7 +283,6 @@ export default function Home() {
         id: uid(),
         label: `Investigator ${letters[prev.length] ?? prev.length + 1}`,
         annualSalary: "130000",
-        fte: "15",
       },
     ]);
   }, []);
@@ -371,9 +323,6 @@ export default function Home() {
     };
   }, [calc]);
 
-  // ── Shared input style ──
-  const inputClass = "navy-input";
-
   return (
     <div className="min-h-screen" style={{ background: "oklch(0.14 0.04 255)" }}>
       {/* ── Header ── */}
@@ -410,7 +359,7 @@ export default function Home() {
             </button>
             {showRefs && (
               <div
-                className="absolute right-0 top-9 z-50 rounded-xl shadow-2xl p-3 w-72 space-y-1"
+                className="absolute right-0 top-9 z-50 rounded-xl shadow-2xl p-3 w-80 space-y-1"
                 style={{
                   background: "oklch(0.18 0.04 255)",
                   border: "1px solid oklch(0.28 0.04 255)",
@@ -436,7 +385,7 @@ export default function Home() {
       </header>
 
       <main className="container py-6 lg:py-10">
-        {/* ── User input notice ── */}
+        {/* How to use banner */}
         <div
           className="mb-6 rounded-xl px-4 py-3 flex items-center gap-3 text-sm"
           style={{
@@ -447,11 +396,12 @@ export default function Home() {
         >
           <Info size={15} className="shrink-0" />
           <span>
-            <strong>How to use:</strong> Fill in all fields in the left panel — grant details, investigator team salaries, and the time each investigator will spend writing this application. Results update instantly.
+            <strong>How to use:</strong> Fill in all fields in the left panel — grant details, investigator salaries, and the percentage of annual working time the team will spend writing this application. Results update instantly.
           </span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+
           {/* ══════════════════════════════════════════
               LEFT PANEL — INPUTS
           ══════════════════════════════════════════ */}
@@ -471,15 +421,13 @@ export default function Home() {
               <p className="text-xs mb-4" style={{ color: "oklch(0.50 0.04 255)" }}>
                 Enter the parameters of the grant scheme you are applying to.
               </p>
-
               <div className="space-y-4">
-                {/* Grant Amount */}
                 <div>
                   <label className="block text-xs font-semibold mb-1" style={{ color: "oklch(0.80 0.04 255)" }}>
                     Grant Amount Requested <span style={{ color: "oklch(0.75 0.15 65)" }}>*</span>
                   </label>
                   <input
-                    className={inputClass}
+                    className="navy-input"
                     type="number"
                     min="0"
                     step="10000"
@@ -491,14 +439,12 @@ export default function Home() {
                     Total funding requested (any currency)
                   </p>
                 </div>
-
-                {/* Success Rate */}
                 <div>
                   <label className="block text-xs font-semibold mb-1" style={{ color: "oklch(0.80 0.04 255)" }}>
                     Scheme Success Rate (%) <span style={{ color: "oklch(0.75 0.15 65)" }}>*</span>
                   </label>
                   <input
-                    className={inputClass}
+                    className="navy-input"
                     type="number"
                     min="0"
                     max="100"
@@ -508,17 +454,15 @@ export default function Home() {
                     placeholder="e.g. 12"
                   />
                   <p className="text-xs mt-1" style={{ color: "oklch(0.42 0.04 255)" }}>
-                    The historical or published success rate of this grant scheme (e.g., NHMRC Ideas Grant 2025: 8.1%; ARC Discovery Project 2025: 12.9%)
+                    The historical or published success rate of this grant scheme (e.g., NHMRC Ideas Grant 2025: 8.1%; ARC Discovery Project 2025: 12.9%; NIH R01: ~20%)
                   </p>
                 </div>
-
-                {/* Grant Duration */}
                 <div>
                   <label className="block text-xs font-semibold mb-1" style={{ color: "oklch(0.80 0.04 255)" }}>
                     Grant Duration (years) <span style={{ color: "oklch(0.75 0.15 65)" }}>*</span>
                   </label>
                   <input
-                    className={inputClass}
+                    className="navy-input"
                     type="number"
                     min="1"
                     max="10"
@@ -560,139 +504,110 @@ export default function Home() {
                 </button>
               </div>
               <p className="text-xs mb-4" style={{ color: "oklch(0.50 0.04 255)" }}>
-                For each investigator, enter their name/label, annual salary, and the percentage of their annual working time they will spend on this application.
+                Enter the name/label and annual salary for each investigator on the team.
               </p>
-
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {cis.map((ci, idx) => (
-                  <div
-                    key={ci.id}
-                    className="rounded-lg p-3 space-y-2"
-                    style={{ background: "oklch(0.15 0.04 255)", border: "1px solid oklch(0.22 0.04 255)" }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold" style={{ color: "oklch(0.75 0.15 65)" }}>
-                        Investigator {idx + 1}
-                      </span>
-                      {cis.length > 1 && (
-                        <button
-                          onClick={() => removeCI(ci.id)}
-                          className="p-1 rounded transition-colors"
-                          style={{ color: "oklch(0.45 0.04 255)" }}
-                          title="Remove investigator"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Name/label */}
-                    <div>
-                      <label className="block text-xs mb-1" style={{ color: "oklch(0.60 0.04 255)" }}>
-                        Name / Label
-                      </label>
+                  <div key={ci.id} className="flex gap-2 items-start">
+                    <div className="flex-1 space-y-1.5">
                       <input
-                        className={inputClass + " text-sm"}
+                        className="navy-input text-sm"
                         type="text"
                         value={ci.label}
                         onChange={(e) => updateCI(ci.id, "label", e.target.value)}
-                        placeholder="e.g. Investigator A, or a name"
+                        placeholder={`Investigator ${String.fromCharCode(65 + idx)}`}
                       />
-                    </div>
-
-                    {/* Annual salary */}
-                    <div>
-                      <label className="block text-xs mb-1" style={{ color: "oklch(0.60 0.04 255)" }}>
-                        Annual Salary <span style={{ color: "oklch(0.75 0.15 65)" }}>*</span>
-                      </label>
-                      <input
-                        className={inputClass + " text-sm"}
-                        type="number"
-                        min="0"
-                        step="1000"
-                        value={ci.annualSalary}
-                        onChange={(e) => updateCI(ci.id, "annualSalary", e.target.value)}
-                        placeholder="Annual salary (same currency as grant)"
-                      />
-                      <p className="text-xs mt-0.5" style={{ color: "oklch(0.38 0.04 255)" }}>
-                        Full annual salary in the same currency as the grant amount
-                      </p>
-                    </div>
-
-                    {/* Individual FTE */}
-                    <div>
-                      <label className="block text-xs mb-1" style={{ color: "oklch(0.60 0.04 255)" }}>
-                        Time Spent on This Application (% of annual working time){" "}
-                        <span style={{ color: "oklch(0.75 0.15 65)" }}>*</span>
-                      </label>
-                      <div className="flex items-center gap-2">
+                      <div>
                         <input
-                          type="range"
-                          min="1"
-                          max="50"
-                          step="1"
-                          value={ci.fte}
-                          onChange={(e) => updateCI(ci.id, "fte", e.target.value)}
-                          className="flex-1"
-                          style={{ accentColor: "oklch(0.75 0.15 65)" }}
+                          className="navy-input text-sm"
+                          type="number"
+                          min="0"
+                          step="1000"
+                          value={ci.annualSalary}
+                          onChange={(e) => updateCI(ci.id, "annualSalary", e.target.value)}
+                          placeholder="Annual salary (same currency as grant)"
                         />
-                        <div className="flex items-center gap-1">
-                          <input
-                            className={inputClass + " text-sm text-center w-14"}
-                            type="number"
-                            min="1"
-                            max="50"
-                            step="1"
-                            value={ci.fte}
-                            onChange={(e) => updateCI(ci.id, "fte", e.target.value)}
-                          />
-                          <span className="text-xs" style={{ color: "oklch(0.55 0.04 255)" }}>%</span>
-                        </div>
+                        <p className="text-xs mt-0.5" style={{ color: "oklch(0.38 0.04 255)" }}>
+                          Annual salary (same currency as grant amount)
+                        </p>
                       </div>
-                      <p className="text-xs mt-0.5" style={{ color: "oklch(0.38 0.04 255)" }}>
-                        e.g., 15% means this investigator will spend 15% of their annual working time on this application
-                      </p>
                     </div>
-
-                    {/* Per-CI cost preview */}
-                    {(() => {
-                      const sal = parseFloat(ci.annualSalary.replace(/,/g, "")) || 0;
-                      const f = parseFloat(ci.fte) / 100 || 0;
-                      const cost = sal * f;
-                      return cost > 0 ? (
-                        <div
-                          className="flex justify-between text-xs pt-1"
-                          style={{ borderTop: "1px solid oklch(0.22 0.04 255)", color: "oklch(0.50 0.04 255)" }}
-                        >
-                          <span>Writing cost (salary × FTE)</span>
-                          <span style={{ color: "oklch(0.75 0.15 65)", fontWeight: 600 }}>
-                            {fmtCurrency(cost)}
-                          </span>
-                        </div>
-                      ) : null;
-                    })()}
+                    {cis.length > 1 && (
+                      <button
+                        onClick={() => removeCI(ci.id)}
+                        className="mt-1 p-1.5 rounded-lg transition-colors"
+                        style={{ color: "oklch(0.45 0.04 255)" }}
+                        title="Remove investigator"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
-
-              {/* Total writing cost */}
               {calc && (
                 <div
-                  className="mt-3 pt-3 space-y-1"
-                  style={{ borderTop: "1px solid oklch(0.24 0.04 255)" }}
+                  className="mt-3 pt-3 flex justify-between text-xs"
+                  style={{ borderTop: "1px solid oklch(0.24 0.04 255)", color: "oklch(0.55 0.04 255)" }}
                 >
-                  <div className="flex justify-between text-xs" style={{ color: "oklch(0.55 0.04 255)" }}>
-                    <span>Total team salary / year</span>
-                    <span style={{ color: "oklch(0.80 0.01 255)", fontWeight: 600 }}>
-                      {fmtCurrency(calc.totalSalary)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-xs" style={{ color: "oklch(0.55 0.04 255)" }}>
-                    <span>Total writing cost / year (Σ salary × FTE)</span>
-                    <span style={{ color: "oklch(0.85 0.12 65)", fontWeight: 600 }}>
-                      {fmtCurrency(calc.totalWritingCost)}
-                    </span>
-                  </div>
+                  <span>Total team salary / year</span>
+                  <span style={{ color: "oklch(0.85 0.12 65)", fontWeight: 600 }}>
+                    {fmtCurrency(calc.totalSalary)}
+                  </span>
+                </div>
+              )}
+            </section>
+
+            {/* Team FTE */}
+            <section
+              className="rounded-xl p-5"
+              style={{ background: "oklch(0.18 0.04 255)", border: "1px solid oklch(0.24 0.04 255)" }}
+            >
+              <h2
+                className="text-base font-semibold mb-1"
+                style={{ fontFamily: "'Playfair Display', serif", color: "oklch(0.94 0.01 255)" }}
+              >
+                Time Spent on Grant Writing <span style={{ color: "oklch(0.75 0.15 65)" }}>*</span>
+              </h2>
+              <p className="text-xs mb-4" style={{ color: "oklch(0.50 0.04 255)" }}>
+                What percentage of each investigator's annual working time will be devoted to writing this application? (Applied uniformly across the team.)
+              </p>
+              <div className="flex items-center gap-4">
+                <input
+                  type="range"
+                  min="1"
+                  max="50"
+                  step="1"
+                  value={teamFTE}
+                  onChange={(e) => setTeamFTE(e.target.value)}
+                  className="flex-1"
+                  style={{ accentColor: "oklch(0.75 0.15 65)" }}
+                />
+                <div className="flex items-center gap-1">
+                  <input
+                    className="navy-input text-center w-16 text-sm"
+                    type="number"
+                    min="1"
+                    max="50"
+                    step="1"
+                    value={teamFTE}
+                    onChange={(e) => setTeamFTE(e.target.value)}
+                  />
+                  <span className="text-sm" style={{ color: "oklch(0.55 0.04 255)" }}>%</span>
+                </div>
+              </div>
+              <p className="text-xs mt-2" style={{ color: "oklch(0.42 0.04 255)" }}>
+                e.g., 15% means each investigator will spend 15% of their annual working time on this application
+              </p>
+              {calc && (
+                <div
+                  className="mt-3 pt-3 flex justify-between text-xs"
+                  style={{ borderTop: "1px solid oklch(0.24 0.04 255)", color: "oklch(0.55 0.04 255)" }}
+                >
+                  <span>Total writing cost / year (salary × FTE)</span>
+                  <span style={{ color: "oklch(0.85 0.12 65)", fontWeight: 600 }}>
+                    {fmtCurrency(calc.writingCost)}
+                  </span>
                 </div>
               )}
             </section>
@@ -716,7 +631,7 @@ export default function Home() {
                   <br />
                   ROI = Annualised Expected Grant Value
                   <br />
-                  {"      "}/ Σ (Salary_i × FTE_i)
+                  {"      "}/ (Total Salary × FTE)
                 </div>
                 <div>
                   <span style={{ color: "oklch(0.65 0.08 255)" }}>Formula (2) — Annualised EGV:</span>
@@ -726,11 +641,23 @@ export default function Home() {
                   {"          "}/ Grant Duration (years)
                 </div>
                 <div>
-                  <span style={{ color: "oklch(0.65 0.08 255)" }}>Szilard Point (uniform FTE):</span>
+                  <span style={{ color: "oklch(0.65 0.08 255)" }}>Szilard Point:</span>
                   <br />
                   FTE* = EGV/yr / Total Salary
                   <br />
                   {"       "}(FTE at which ROI = 1)
+                </div>
+                <div style={{ color: "oklch(0.42 0.04 255)", paddingTop: "0.25rem", borderTop: "1px solid oklch(0.24 0.04 255)" }}>
+                  Source: Ni D &amp; Nanan R (2026).{" "}
+                  <a
+                    href="https://www.authorea.com/doi/full/10.22541/au.176918698.87912423/v1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "oklch(0.65 0.12 255)", textDecoration: "underline" }}
+                  >
+                    Authorea preprint
+                  </a>
+                  . DOI: 10.22541/au.176918698.87912423
                 </div>
               </div>
             )}
@@ -745,26 +672,19 @@ export default function Home() {
             {verdict ? (
               <div
                 className={`rounded-xl p-5 flex items-start gap-4 transition-all duration-300 ${
-                  verdict.type === "good"
-                    ? "verdict-good"
-                    : verdict.type === "warn"
-                    ? "verdict-neutral"
-                    : "verdict-bad"
+                  verdict.type === "good" ? "verdict-good" :
+                  verdict.type === "warn" ? "verdict-neutral" : "verdict-bad"
                 }`}
                 style={{ minHeight: "80px" }}
               >
                 <div className="shrink-0 mt-0.5">
-                  {verdict.type === "good" ? (
-                    <CheckCircle size={24} />
-                  ) : verdict.type === "warn" ? (
-                    <AlertTriangle size={24} />
-                  ) : (
-                    <TrendingDown size={24} />
-                  )}
+                  {verdict.type === "good" ? <CheckCircle size={24} /> :
+                   verdict.type === "warn" ? <AlertTriangle size={24} /> :
+                   <TrendingDown size={24} />}
                 </div>
                 <div>
                   <div
-                    className="font-extrabold tracking-widest uppercase"
+                    className="font-extrabold uppercase"
                     style={{ fontSize: "1.05rem", letterSpacing: "0.08em", lineHeight: 1.2 }}
                   >
                     {verdict.label}
@@ -785,7 +705,7 @@ export default function Home() {
               </div>
             )}
 
-            {/* Key metrics row */}
+            {/* Key metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {/* ROI Gauge */}
               <div
@@ -819,10 +739,7 @@ export default function Home() {
                     Maximum FTE before ROI falls below 1
                   </div>
                 </div>
-                <div
-                  className="szilard-badge mt-3 self-start"
-                  style={{ fontSize: "0.7rem" }}
-                >
+                <div className="szilard-badge mt-3 self-start" style={{ fontSize: "0.7rem" }}>
                   Break-even threshold
                 </div>
               </div>
@@ -859,7 +776,7 @@ export default function Home() {
               className="rounded-xl p-5"
               style={{ background: "oklch(0.18 0.04 255)", border: "1px solid oklch(0.24 0.04 255)" }}
             >
-              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                 <h2
                   className="text-base font-semibold"
                   style={{ fontFamily: "'Playfair Display', serif", color: "oklch(0.94 0.01 255)" }}
@@ -873,7 +790,7 @@ export default function Home() {
                 )}
               </div>
               <p className="text-xs mb-3" style={{ color: "oklch(0.45 0.04 255)" }}>
-                This curve shows how ROI changes as a function of uniform FTE across all investigators. The vertical amber line marks the Szilard Point (ROI = 1). The white dashed line shows the current average FTE of your team.
+                How ROI changes as the team's FTE devoted to writing increases. The amber vertical line marks the Szilard Point (ROI = 1); the white dashed line shows your current FTE.
               </p>
 
               {calc ? (
@@ -893,7 +810,7 @@ export default function Home() {
                       axisLine={{ stroke: "oklch(0.26 0.04 255)" }}
                       tickLine={false}
                       label={{
-                        value: "FTE devoted to grant writing (uniform across team)",
+                        value: "FTE devoted to grant writing",
                         position: "insideBottom",
                         offset: -12,
                         fill: "oklch(0.42 0.04 255)",
@@ -914,7 +831,7 @@ export default function Home() {
                       }}
                     />
                     <Tooltip content={<CustomTooltip />} />
-                    {/* ROI = 1 / Szilard Point horizontal line */}
+                    {/* Szilard Point horizontal line (ROI = 1) */}
                     <ReferenceLine
                       y={1}
                       stroke="oklch(0.75 0.15 65)"
@@ -939,21 +856,19 @@ export default function Home() {
                         fontSize: 9,
                       }}
                     />
-                    {/* Current average FTE */}
-                    {calc.avgFTE > 0 && (
-                      <ReferenceLine
-                        x={calc.avgFTE}
-                        stroke="oklch(0.94 0.01 255)"
-                        strokeDasharray="4 3"
-                        strokeWidth={1.5}
-                        label={{
-                          value: "Avg. FTE",
-                          position: "top",
-                          fill: "oklch(0.75 0.01 255)",
-                          fontSize: 9,
-                        }}
-                      />
-                    )}
+                    {/* Current FTE */}
+                    <ReferenceLine
+                      x={calc.fte}
+                      stroke="oklch(0.94 0.01 255)"
+                      strokeDasharray="4 3"
+                      strokeWidth={1.5}
+                      label={{
+                        value: "Your FTE",
+                        position: "top",
+                        fill: "oklch(0.75 0.01 255)",
+                        fontSize: 9,
+                      }}
+                    />
                     <Area
                       type="monotone"
                       dataKey="roi"
@@ -1001,13 +916,14 @@ export default function Home() {
                       ["Grant duration", `${calc.duration} year${calc.duration !== 1 ? "s" : ""}`],
                       ["Annualised Expected Grant Value", fmtCurrency(calc.annualisedEGV)],
                       ["Total team salary / year", fmtCurrency(calc.totalSalary)],
-                      ["Total writing cost / year (Σ salary × FTE)", fmtCurrency(calc.totalWritingCost)],
+                      ["Team FTE devoted to writing", fmtPct(calc.fte)],
+                      ["Total writing cost / year (salary × FTE)", fmtCurrency(calc.writingCost)],
                       ["Current ROI", calc.roi !== null ? fmt(calc.roi, 3) : "—"],
-                      ["Szilard Point (break-even FTE, uniform)", fmtPct(calc.szilardFTE)],
+                      ["Szilard Point (break-even FTE)", fmtPct(calc.szilardFTE)],
                     ].map(([label, value], i) => (
                       <tr
                         key={i}
-                        style={{ borderBottom: i < 7 ? "1px solid oklch(0.21 0.04 255)" : "none" }}
+                        style={{ borderBottom: i < 8 ? "1px solid oklch(0.21 0.04 255)" : "none" }}
                       >
                         <td className="py-2 pr-4" style={{ color: "oklch(0.58 0.04 255)" }}>
                           {label}
@@ -1020,9 +936,7 @@ export default function Home() {
                                 ? calc.roi !== null && calc.roi >= 1
                                   ? "oklch(0.70 0.18 145)"
                                   : "oklch(0.70 0.18 25)"
-                                : label.startsWith("Szilard")
-                                ? "oklch(0.85 0.12 65)"
-                                : label === "Total writing cost / year (Σ salary × FTE)"
+                                : label.startsWith("Szilard") || label.includes("writing cost")
                                 ? "oklch(0.85 0.12 65)"
                                 : "oklch(0.94 0.01 255)",
                           }}
@@ -1033,45 +947,6 @@ export default function Home() {
                     ))}
                   </tbody>
                 </table>
-
-                {/* Per-CI breakdown */}
-                {calc.ciData.length > 0 && (
-                  <div className="mt-4">
-                    <div className="text-xs font-semibold mb-2" style={{ color: "oklch(0.60 0.04 255)" }}>
-                      Per-Investigator Writing Cost Breakdown
-                    </div>
-                    <table className="w-full text-xs">
-                      <thead>
-                        <tr style={{ borderBottom: "1px solid oklch(0.24 0.04 255)" }}>
-                          {["Investigator", "Annual Salary", "FTE", "Writing Cost / yr"].map((h) => (
-                            <th
-                              key={h}
-                              className="pb-1.5 text-left font-medium"
-                              style={{ color: "oklch(0.48 0.04 255)" }}
-                            >
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {calc.ciData.map((ci, i) => (
-                          <tr
-                            key={i}
-                            style={{ borderBottom: i < calc.ciData.length - 1 ? "1px solid oklch(0.20 0.04 255)" : "none" }}
-                          >
-                            <td className="py-1.5" style={{ color: "oklch(0.75 0.04 255)" }}>{ci.label}</td>
-                            <td className="py-1.5" style={{ color: "oklch(0.75 0.04 255)" }}>{fmtCurrency(ci.salary)}</td>
-                            <td className="py-1.5" style={{ color: "oklch(0.75 0.04 255)" }}>{fmtPct(ci.fte)}</td>
-                            <td className="py-1.5 font-semibold" style={{ color: "oklch(0.85 0.12 65)" }}>
-                              {fmtCurrency(ci.cost)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
               </section>
             )}
 
@@ -1091,13 +966,13 @@ export default function Home() {
                   <strong style={{ color: "oklch(0.70 0.18 145)" }}>ROI &gt; 1:</strong> The annualised expected grant value exceeds the salary cost of writing — the application is financially justified at the current time investment.
                 </p>
                 <p>
-                  <strong style={{ color: "oklch(0.85 0.12 65)" }}>ROI = 1 (Szilard Point):</strong> The break-even threshold. Writing beyond this FTE costs more than the expected return. The Szilard Point FTE shown is calculated assuming a uniform FTE across all investigators.
+                  <strong style={{ color: "oklch(0.85 0.12 65)" }}>ROI = 1 (Szilard Point):</strong> The break-even threshold. Writing beyond this FTE costs more than the expected return.
                 </p>
                 <p>
                   <strong style={{ color: "oklch(0.70 0.18 25)" }}>ROI &lt; 1:</strong> The salary cost of writing exceeds the expected value of the grant. Consider reducing team size, writing time, or targeting a higher-success-rate scheme.
                 </p>
                 <p className="pt-1" style={{ color: "oklch(0.40 0.04 255)" }}>
-                  Note: This analysis focuses on the direct financial return of the grant application process from the applicant's perspective. It does not account for downstream benefits of funded research (publications, career advancement, societal impact), which are real but not quantifiable at the time of application decision.
+                  Note: This analysis focuses on the direct financial return of the grant application process. It does not account for downstream benefits of funded research (publications, career advancement, societal impact), which are real but not quantifiable at the time of the application decision.
                 </p>
               </div>
             </section>
@@ -1110,10 +985,19 @@ export default function Home() {
         className="border-t mt-8 py-5"
         style={{ borderColor: "oklch(0.20 0.04 255)", background: "oklch(0.12 0.04 255)" }}
       >
-        <div className="container text-xs text-center" style={{ color: "oklch(0.38 0.04 255)" }}>
-          Based on: Ni D &amp; Nanan R (2026).{" "}
-          <em>When grant writing costs more than it pays: A return-on-investment analysis.</em>{" "}
-          · For research and informational purposes only.
+        <div className="container text-xs text-center space-y-1" style={{ color: "oklch(0.38 0.04 255)" }}>
+          <div>
+            Based on:{" "}
+            <a
+              href="https://www.authorea.com/doi/full/10.22541/au.176918698.87912423/v1"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "oklch(0.55 0.08 255)", textDecoration: "underline" }}
+            >
+              Ni D &amp; Nanan R (2026). <em>When grant writing costs more than it pays: A return-on-investment analysis.</em> Authorea. DOI: 10.22541/au.176918698.87912423
+            </a>
+          </div>
+          <div>For research and informational purposes only.</div>
         </div>
       </footer>
     </div>
