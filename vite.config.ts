@@ -205,6 +205,10 @@ function vitePluginStorageProxy(): Plugin {
 
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 
+// GitHub Pages serves from a subdirectory (e.g. /grant-roi-calculator/).
+// The VITE_BASE_PATH env var is set by the GitHub Actions workflow.
+const basePath = process.env.VITE_BASE_PATH ?? "/";
+
 export default defineConfig({
   plugins,
   resolve: {
@@ -216,6 +220,7 @@ export default defineConfig({
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
+  base: basePath,
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
