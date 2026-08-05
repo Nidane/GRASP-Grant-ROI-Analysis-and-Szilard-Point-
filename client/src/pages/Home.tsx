@@ -1,5 +1,5 @@
 /**
- * Grant ROI & Szilard Point Calculator
+ * GRASP — Grant ROI Analysis and Szilard Point Platform
  * Design: Bold Policy Brief — deep navy, amber accent, Playfair Display + Inter
  *
  * Formula (Ni & Nanan 2026, Authorea DOI: 10.22541/au.176918698.87912423):
@@ -336,10 +336,11 @@ export default function Home() {
               className="text-xl font-bold leading-tight"
               style={{ fontFamily: "'Playfair Display', serif", color: "oklch(0.94 0.01 255)" }}
             >
-              Grant ROI &amp; Szilard Point Calculator
+              GRASP
             </h1>
             <p className="text-xs mt-0.5" style={{ color: "oklch(0.50 0.04 255)" }}>
-              Based on Ni &amp; Nanan (2026) —{" "}
+              <span style={{ color: "oklch(0.65 0.10 65)" }}>Grant ROI Analysis and Szilard Point Platform</span>
+              {" — "}Based on Ni &amp; Nanan (2026),{" "}
               <em>When grant writing costs more than it pays: A return-on-investment analysis</em>
             </p>
           </div>
@@ -997,7 +998,7 @@ export default function Home() {
               Ni D &amp; Nanan R (2026). <em>When grant writing costs more than it pays: A return-on-investment analysis.</em> Authorea. DOI: 10.22541/au.176918698.87912423
             </a>
           </div>
-          <div>For research and informational purposes only.</div>
+          <div><span style={{ color: "oklch(0.65 0.10 65)" }}>GRASP</span> — Grant ROI Analysis and Szilard Point Platform. For research and informational purposes only.</div>
         </div>
       </footer>
     </div>
