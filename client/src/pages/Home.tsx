@@ -181,7 +181,7 @@ function CustomTooltip({ active, payload, label }: any) {
       <div style={{ color: "oklch(0.55 0.04 255)", fontSize: "0.75rem" }}>
         FTE: {(label * 100).toFixed(1)}%
       </div>
-      <div style={{ color, fontWeight: 600 }}>ROI: {fmt(roi, 3)}</div>
+      <div style={{ color, fontWeight: 600 }}>Est. ROI: {fmt(roi, 3)}</div>
     </div>
   );
 }
@@ -859,7 +859,7 @@ export default function Home() {
                       tickLine={false}
                       tickFormatter={(v) => fmt(v, 1)}
                       label={{
-                        value: "ROI",
+                        value: "Estimated ROI",
                         angle: -90,
                         position: "insideLeft",
                         fill: "oklch(0.42 0.04 255)",
@@ -874,7 +874,7 @@ export default function Home() {
                       strokeDasharray="5 3"
                       strokeWidth={1.5}
                       label={{
-                        value: "Szilard Point (ROI = 1)",
+                        value: "Szilard Point (Est. ROI = 1)",
                         position: "right",
                         fill: "oklch(0.80 0.12 65)",
                         fontSize: 9,
