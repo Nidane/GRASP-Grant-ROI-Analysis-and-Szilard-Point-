@@ -157,7 +157,7 @@ function ROIGauge({ roi }: { roi: number | null }) {
         {roi === null ? "—" : fmt(roi, 2)}
       </div>
       <div className="text-xs mt-1.5" style={{ color: "oklch(0.50 0.04 255)" }}>
-        Return on Investment (ROI)
+        Estimated Return on Investment (ROI)
       </div>
     </div>
   );
@@ -442,7 +442,7 @@ export default function Home() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold mb-1" style={{ color: "oklch(0.80 0.04 255)" }}>
-                    Scheme Success Rate (%) <span style={{ color: "oklch(0.75 0.15 65)" }}>*</span>
+                    Anticipated Scheme Success Rate (%) <span style={{ color: "oklch(0.75 0.15 65)" }}>*</span>
                   </label>
                   <input
                     className="navy-input"
@@ -455,7 +455,7 @@ export default function Home() {
                     placeholder="e.g. 12"
                   />
                   <p className="text-xs mt-1" style={{ color: "oklch(0.42 0.04 255)" }}>
-                    The historical or published success rate of this grant scheme (e.g., NHMRC Ideas Grant 2025: 8.1%; ARC Discovery Project 2025: 12.9%; NIH R01: ~20%)
+                    The anticipated (historical or published) success rate of the grant scheme you are applying to (e.g., NHMRC Ideas Grant 2025: 8.1%; ARC Discovery Project 2025: 12.9%; NIH R01: ~20%). All ROI and Szilard Point results are estimates based on this anticipated rate.
                   </p>
                 </div>
                 <div>
@@ -613,6 +613,24 @@ export default function Home() {
               )}
             </section>
 
+            {/* Definitions block */}
+            <div
+              className="rounded-xl p-4 text-xs space-y-3"
+              style={{ background: "oklch(0.16 0.04 255)", border: "1px solid oklch(0.22 0.04 255)" }}
+            >
+              <div style={{ color: "oklch(0.75 0.15 65)", fontWeight: 600, fontSize: "0.72rem", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                Key Definitions
+              </div>
+              <div style={{ color: "oklch(0.60 0.04 255)", lineHeight: 1.6 }}>
+                <span style={{ color: "oklch(0.85 0.12 65)", fontWeight: 600 }}>Full-Time Equivalent (FTE):</span>{" "}
+                The proportion of a researcher's total annual working time devoted to writing a grant application. An FTE of 0.15 (15%) means the investigator spends 15% of their annual working time on this application.
+              </div>
+              <div style={{ color: "oklch(0.60 0.04 255)", lineHeight: 1.6 }}>
+                <span style={{ color: "oklch(0.85 0.12 65)", fontWeight: 600 }}>Szilard Point:</span>{" "}
+                The FTE at which the ROI equals 1 — that is, the scenario where the salary cost of all investigators involved in the application equals the expected value of the awarded grant. Writing time beyond the Szilard Point costs more than the application is statistically expected to return (Ni &amp; Nanan, 2026).
+              </div>
+            </div>
+
             {/* Formula toggle */}
             <button
               onClick={() => setShowFormula((v) => !v)}
@@ -722,7 +740,7 @@ export default function Home() {
                 style={{ background: "oklch(0.18 0.04 255)", border: "1px solid oklch(0.24 0.04 255)" }}
               >
                 <div className="text-xs font-semibold mb-2" style={{ color: "oklch(0.60 0.04 255)" }}>
-                  Szilard Point
+                  Estimated Szilard Point
                 </div>
                 <div className="flex-1 flex flex-col justify-center">
                   <div
@@ -737,11 +755,11 @@ export default function Home() {
                     {calc ? fmtPct(calc.szilardFTE) : "—"}
                   </div>
                   <div className="text-xs mt-1.5 leading-snug" style={{ color: "oklch(0.50 0.04 255)" }}>
-                    Maximum FTE before ROI falls below 1
+                    Estimated maximum FTE before ROI falls below 1
                   </div>
                 </div>
                 <div className="szilard-badge mt-3 self-start" style={{ fontSize: "0.7rem" }}>
-                  Break-even threshold
+                  Estimated break-even threshold
                 </div>
               </div>
 
@@ -751,7 +769,7 @@ export default function Home() {
                 style={{ background: "oklch(0.18 0.04 255)", border: "1px solid oklch(0.24 0.04 255)" }}
               >
                 <div className="text-xs font-semibold mb-2" style={{ color: "oklch(0.60 0.04 255)" }}>
-                  Annualised Expected Grant Value
+                  Estimated Annualised Expected Grant Value
                 </div>
                 <div className="flex-1 flex flex-col justify-center">
                   <div
@@ -766,7 +784,7 @@ export default function Home() {
                     {calc ? fmtCurrency(calc.annualisedEGV) : "—"}
                   </div>
                   <div className="text-xs mt-1.5 leading-snug" style={{ color: "oklch(0.50 0.04 255)" }}>
-                    (Grant × Rate) ÷ Duration
+                    (Grant × Anticipated Rate) ÷ Duration
                   </div>
                 </div>
               </div>
@@ -913,14 +931,14 @@ export default function Home() {
                   <tbody>
                     {[
                       ["Grant amount requested", fmtCurrency(calc.amount)],
-                      ["Scheme success rate", fmtPct(calc.rate)],
+                      ["Anticipated scheme success rate", fmtPct(calc.rate)],
                       ["Grant duration", `${calc.duration} year${calc.duration !== 1 ? "s" : ""}`],
-                      ["Annualised Expected Grant Value", fmtCurrency(calc.annualisedEGV)],
+                      ["Estimated Annualised Expected Grant Value", fmtCurrency(calc.annualisedEGV)],
                       ["Total team salary / year", fmtCurrency(calc.totalSalary)],
                       ["Team FTE devoted to writing", fmtPct(calc.fte)],
                       ["Total writing cost / year (salary × FTE)", fmtCurrency(calc.writingCost)],
-                      ["Current ROI", calc.roi !== null ? fmt(calc.roi, 3) : "—"],
-                      ["Szilard Point (break-even FTE)", fmtPct(calc.szilardFTE)],
+                      ["Estimated ROI", calc.roi !== null ? fmt(calc.roi, 3) : "—"],
+                      ["Estimated Szilard Point (break-even FTE)", fmtPct(calc.szilardFTE)],
                     ].map(([label, value], i) => (
                       <tr
                         key={i}
@@ -933,11 +951,11 @@ export default function Home() {
                           className="py-2 text-right font-semibold"
                           style={{
                             color:
-                              label === "Current ROI"
+                              label === "Estimated ROI"
                                 ? calc.roi !== null && calc.roi >= 1
                                   ? "oklch(0.70 0.18 145)"
                                   : "oklch(0.70 0.18 25)"
-                                : label.startsWith("Szilard") || label.includes("writing cost")
+                                : label.startsWith("Estimated Szilard") || label.includes("writing cost")
                                 ? "oklch(0.85 0.12 65)"
                                 : "oklch(0.94 0.01 255)",
                           }}
@@ -964,13 +982,13 @@ export default function Home() {
               </h2>
               <div className="space-y-2 text-xs leading-relaxed" style={{ color: "oklch(0.52 0.04 255)" }}>
                 <p>
-                  <strong style={{ color: "oklch(0.70 0.18 145)" }}>ROI &gt; 1:</strong> The annualised expected grant value exceeds the salary cost of writing — the application is financially justified at the current time investment.
+                  <strong style={{ color: "oklch(0.70 0.18 145)" }}>Estimated ROI &gt; 1:</strong> The estimated annualised expected grant value exceeds the salary cost of writing — the application is estimated to be financially justified at the current time investment.
                 </p>
                 <p>
-                  <strong style={{ color: "oklch(0.85 0.12 65)" }}>ROI = 1 (Szilard Point):</strong> The break-even threshold. Writing beyond this FTE costs more than the expected return.
+                  <strong style={{ color: "oklch(0.85 0.12 65)" }}>Estimated ROI = 1 (Szilard Point):</strong> The estimated break-even threshold. Writing beyond this FTE is estimated to cost more than the expected return.
                 </p>
                 <p>
-                  <strong style={{ color: "oklch(0.70 0.18 25)" }}>ROI &lt; 1:</strong> The salary cost of writing exceeds the expected value of the grant. Consider reducing team size, writing time, or targeting a higher-success-rate scheme.
+                  <strong style={{ color: "oklch(0.70 0.18 25)" }}>Estimated ROI &lt; 1:</strong> The estimated salary cost of writing exceeds the expected value of the grant. Consider reducing team size, writing time, or targeting a higher-success-rate scheme.
                 </p>
                 <p className="pt-1" style={{ color: "oklch(0.40 0.04 255)" }}>
                   Note: This analysis focuses on the direct financial return of the grant application process. It does not account for downstream benefits of funded research (publications, career advancement, societal impact), which are real but not quantifiable at the time of the application decision.
