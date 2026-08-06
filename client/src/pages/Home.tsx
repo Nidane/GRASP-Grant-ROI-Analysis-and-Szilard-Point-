@@ -623,11 +623,28 @@ export default function Home() {
               </div>
               <div style={{ color: "oklch(0.60 0.04 255)", lineHeight: 1.6 }}>
                 <span style={{ color: "oklch(0.85 0.12 65)", fontWeight: 600 }}>Full-Time Equivalent (FTE):</span>{" "}
-                The proportion of a researcher's total annual working time devoted to writing a grant application. An FTE of 0.15 (15%) means the investigator spends 15% of their annual working time on this application.
+                A unit of measurement that indicates the workload of an employed person in a way that makes workloads comparable across various contexts. FTE is often used to measure a worker's involvement in a project. An FTE of 1.0 is equivalent to a full-time worker, while an FTE of 0.5 signals half of a full work load.{" "}
+                <a
+                  href="https://en.wikipedia.org/wiki/Full-time_equivalent"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "oklch(0.65 0.12 255)", textDecoration: "underline" }}
+                >
+                  (Wikipedia)
+                </a>
               </div>
               <div style={{ color: "oklch(0.60 0.04 255)", lineHeight: 1.6 }}>
                 <span style={{ color: "oklch(0.85 0.12 65)", fontWeight: 600 }}>Szilard Point:</span>{" "}
-                The FTE at which the ROI equals 1 — that is, the scenario where the salary cost of all investigators involved in the application equals the expected value of the awarded grant. Writing time beyond the Szilard Point costs more than the application is statistically expected to return (Ni &amp; Nanan, 2026).
+                The threshold at which the total cost of competing for a grant equals (or surpasses) the value of the available funding.{" "}
+                <a
+                  href="https://www.nature.com/articles/d41586-025-04060-x"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "oklch(0.65 0.12 255)", textDecoration: "underline" }}
+                >
+                  (Schweiger, <em>Nature</em>, 2025)
+                </a>
+                {" "}In GRASP, this is operationalised as the FTE at which ROI = 1 — the point where the salary cost of all investigators writing the application equals the expected value of the awarded grant (Ni &amp; Nanan, 2026).
               </div>
             </div>
 
