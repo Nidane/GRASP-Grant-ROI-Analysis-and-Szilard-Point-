@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <!-- GitHub Pages SPA: decode redirected path from 404.html query string -->
+    <script>
+      (function(l){if(l.search[1]==="/"){var d=l.search.slice(1).split("&").map(function(s){return s.replace(/~and~/g,"&");}).join("?");window.history.replaceState(null,null,l.pathname.slice(0,-1)+d+l.hash);}}(window.location));
+    </script>
     <title>GRASP — Grant ROI Analysis and Szilard Point Platform</title>
     <meta name="description" content="Calculate the return on investment of writing a grant application and find your personal Szilard point — the maximum time to spend before grant writing costs more than it pays." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
