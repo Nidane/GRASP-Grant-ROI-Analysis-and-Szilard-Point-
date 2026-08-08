@@ -40,7 +40,8 @@ jobs:
         run: pnpm build
         env:
           # GitHub Pages serves from /repo-name/ subdirectory — set base path
-          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          # github.repository is "owner/repo" so we extract just the repo name
+          VITE_BASE_PATH: /GRASP/
           # Dummy values so Vite does not error on missing env vars
           VITE_ANALYTICS_ENDPOINT: ""
           VITE_ANALYTICS_WEBSITE_ID: ""
