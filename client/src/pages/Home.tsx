@@ -834,7 +834,7 @@ export default function Home() {
                   className="text-base font-semibold"
                   style={{ fontFamily: "'Playfair Display', serif", color: "oklch(0.94 0.01 255)" }}
                 >
-                  ROI vs. Time Invested
+                  ROI vs. Time Invested (Full-Time Equivalent (FTE))
                 </h2>
                 <div className="flex items-center gap-2 flex-wrap">
                   {calc && (
