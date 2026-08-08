@@ -8,7 +8,7 @@
  *   Szilard Point FTE* = Annualised EGV / Total Salary  (FTE at which ROI = 1)
  */
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import {
   AreaChart,
   Area,
@@ -28,7 +28,10 @@ import {
   TrendingDown,
   BookOpen,
   ExternalLink,
+  Download,
 } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -169,19 +172,31 @@ function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   const roi = payload[0]?.value as number;
   const color = roi >= 1 ? "oklch(0.70 0.18 145)" : "oklch(0.70 0.18 25)";
+  const nearSzilard = Math.abs(roi - 1) < 0.08;
   return (
     <div
       className="rounded-lg px-3 py-2 text-sm shadow-xl"
       style={{
         background: "oklch(0.18 0.04 255)",
-        border: "1px solid oklch(0.30 0.04 255)",
+        border: `1px solid ${nearSzilard ? "oklch(0.75 0.15 65)" : "oklch(0.30 0.04 255)"}`,
         color: "oklch(0.94 0.01 255)",
+        maxWidth: 230,
       }}
     >
       <div style={{ color: "oklch(0.55 0.04 255)", fontSize: "0.75rem" }}>
-        FTE: {(label * 100).toFixed(1)}%
+        Time Invested (FTE): {(label * 100).toFixed(1)}%
       </div>
       <div style={{ color, fontWeight: 600 }}>Est. ROI: {fmt(roi, 3)}</div>
+      {nearSzilard && (
+        <div style={{ color: "oklch(0.85 0.12 65)", marginTop: 5, fontSize: "0.70rem", lineHeight: 1.45 }}>
+          ⚠ Near the Szilard Point — the threshold where writing cost equals the expected grant value. Writing beyond this point costs more than it is expected to return.
+        </div>
+      )}
+      {roi < 1 && !nearSzilard && (
+        <div style={{ color: "oklch(0.70 0.18 25)", marginTop: 5, fontSize: "0.70rem", lineHeight: 1.45 }}>
+          Below Szilard Point — writing cost exceeds expected return.
+        </div>
+      )}
     </div>
   );
 }
@@ -273,6 +288,39 @@ export default function Home() {
       chartData,
     };
   }, [grantAmount, successRate, grantDuration, cis, teamFTE]);
+
+  // ── Export ──
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  const handleExport = useCallback(async (format: "pdf" | "png") => {
+    const el = resultsRef.current;
+    if (!el) return;
+    try {
+      const canvas = await html2canvas(el, {
+        backgroundColor: "#0d1117",
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      if (format === "png") {
+        const link = document.createElement("a");
+        link.download = "GRASP_results.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } else {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF({
+          orientation: canvas.width > canvas.height ? "landscape" : "portrait",
+          unit: "px",
+          format: [canvas.width / 2, canvas.height / 2],
+        });
+        pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
+        pdf.save("GRASP_results.pdf");
+      }
+    } catch (e) {
+      console.error("Export failed", e);
+    }
+  }, []);
 
   // ── CI management ──
   const addCI = useCallback(() => {
@@ -819,11 +867,41 @@ export default function Home() {
                 >
                   ROI vs. Time Invested
                 </h2>
-                {calc && (
-                  <div className="szilard-badge">
-                    Szilard Point: {fmtPct(calc.szilardFTE)} FTE
-                  </div>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {calc && (
+                    <div className="szilard-badge">
+                      Szilard Point: {fmtPct(calc.szilardFTE)} FTE
+                    </div>
+                  )}
+                  {calc && (
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handleExport("png")}
+                        title="Export as PNG image"
+                        style={{
+                          display: "flex", alignItems: "center", gap: 4,
+                          padding: "4px 10px", borderRadius: 6, fontSize: "0.72rem",
+                          background: "oklch(0.22 0.06 255)", border: "1px solid oklch(0.32 0.06 255)",
+                          color: "oklch(0.75 0.04 255)", cursor: "pointer",
+                        }}
+                      >
+                        <Download size={11} /> PNG
+                      </button>
+                      <button
+                        onClick={() => handleExport("pdf")}
+                        title="Export as PDF"
+                        style={{
+                          display: "flex", alignItems: "center", gap: 4,
+                          padding: "4px 10px", borderRadius: 6, fontSize: "0.72rem",
+                          background: "oklch(0.22 0.06 255)", border: "1px solid oklch(0.32 0.06 255)",
+                          color: "oklch(0.75 0.04 255)", cursor: "pointer",
+                        }}
+                      >
+                        <Download size={11} /> PDF
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               <p className="text-xs mb-3" style={{ color: "oklch(0.45 0.04 255)" }}>
                 How ROI changes as the team's FTE devoted to writing increases. The amber vertical line marks the Szilard Point (ROI = 1); the white dashed line shows your current FTE.
@@ -882,16 +960,39 @@ export default function Home() {
                         fontSize: 9,
                       }}
                     />
-                    {/* Szilard Point vertical line */}
+                    {/* Szilard Point vertical line with custom label above */}
                     <ReferenceLine
                       x={calc.szilardFTE}
                       stroke="oklch(0.75 0.15 65)"
                       strokeWidth={2}
-                      label={{
-                        value: `Szilard Point: ${fmtPct(calc.szilardFTE)}`,
-                        position: "insideTopLeft",
-                        fill: "oklch(0.85 0.12 65)",
-                        fontSize: 10,
+                      label={(props: any) => {
+                        const { viewBox } = props;
+                        if (!viewBox) return <g />;
+                        const { x, y } = viewBox;
+                        return (
+                          <g>
+                            <rect
+                              x={x - 62}
+                              y={y - 22}
+                              width={124}
+                              height={18}
+                              rx={4}
+                              fill="oklch(0.22 0.08 65)"
+                              stroke="oklch(0.75 0.15 65)"
+                              strokeWidth={0.8}
+                            />
+                            <text
+                              x={x}
+                              y={y - 9}
+                              textAnchor="middle"
+                              fill="oklch(0.90 0.12 65)"
+                              fontSize={9.5}
+                              fontWeight={600}
+                            >
+                              {`Szilard Point: ${fmtPct(calc.szilardFTE)}`}
+                            </text>
+                          </g>
+                        );
                       }}
                     />
                     {/* Current FTE */}
