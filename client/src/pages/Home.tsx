@@ -257,9 +257,9 @@ export default function Home() {
     // Szilard Point FTE (ROI = 1)
     const szilardFTE = annualisedEGV / totalSalary;
 
-    // Chart: ROI vs FTE from 0.5% to 50%
-    const chartData = Array.from({ length: 100 }, (_, i) => {
-      const f = (i + 1) / 200;
+    // Chart: ROI vs FTE from 1% to 40%
+    const chartData = Array.from({ length: 40 }, (_, i) => {
+      const f = (i + 1) / 100;
       return {
         fte: f,
         roi: annualisedEGV / (totalSalary * f),
@@ -455,7 +455,7 @@ export default function Home() {
                     placeholder="e.g. 12"
                   />
                   <p className="text-xs mt-1" style={{ color: "oklch(0.42 0.04 255)" }}>
-                    The anticipated (historical or published) success rate of the grant scheme you are applying to (e.g., NHMRC Ideas Grant 2025: 8.1%; ARC Discovery Project 2025: 12.9%; NIH R01: ~20%). All ROI and Szilard Point results are estimates based on this anticipated rate.
+                    The anticipated (e.g., historical or published) success rate of the grant scheme you are applying to. All ROI and Szilard Point results are estimates based on this anticipated rate.
                   </p>
                 </div>
                 <div>
@@ -473,7 +473,7 @@ export default function Home() {
                     placeholder="e.g. 3"
                   />
                   <p className="text-xs mt-1" style={{ color: "oklch(0.42 0.04 255)" }}>
-                    The funding period if awarded (e.g., most NHMRC and ARC grants run for 3–4 years)
+                    The funding period if awarded (e.g., 3–4 years)
                   </p>
                 </div>
               </div>
@@ -801,7 +801,7 @@ export default function Home() {
                     {calc ? fmtCurrency(calc.annualisedEGV) : "—"}
                   </div>
                   <div className="text-xs mt-1.5 leading-snug" style={{ color: "oklch(0.50 0.04 255)" }}>
-                    (Grant × Anticipated Rate) ÷ Duration
+                    (Grant × Anticipated Success Rate) ÷ Duration
                   </div>
                 </div>
               </div>
@@ -842,11 +842,13 @@ export default function Home() {
                     <XAxis
                       dataKey="fte"
                       tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
+                      ticks={[0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40]}
+                      domain={[0, 0.40]}
                       tick={{ fill: "oklch(0.48 0.04 255)", fontSize: 10 }}
                       axisLine={{ stroke: "oklch(0.26 0.04 255)" }}
                       tickLine={false}
                       label={{
-                        value: "FTE devoted to grant writing",
+                        value: "Time Invested — Full-Time Equivalent (FTE)",
                         position: "insideBottom",
                         offset: -12,
                         fill: "oklch(0.42 0.04 255)",
@@ -886,10 +888,10 @@ export default function Home() {
                       stroke="oklch(0.75 0.15 65)"
                       strokeWidth={2}
                       label={{
-                        value: `Szilard Pt. ${fmtPct(calc.szilardFTE)}`,
-                        position: "insideTopRight",
+                        value: `Szilard Point: ${fmtPct(calc.szilardFTE)}`,
+                        position: "insideTopLeft",
                         fill: "oklch(0.85 0.12 65)",
-                        fontSize: 9,
+                        fontSize: 10,
                       }}
                     />
                     {/* Current FTE */}
