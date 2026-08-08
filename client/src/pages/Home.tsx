@@ -8,7 +8,7 @@
  *   Szilard Point FTE* = Annualised EGV / Total Salary  (FTE at which ROI = 1)
  */
 
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   AreaChart,
   Area,
@@ -28,10 +28,7 @@ import {
   TrendingDown,
   BookOpen,
   ExternalLink,
-  Download,
 } from "lucide-react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -293,39 +290,6 @@ export default function Home() {
       chartData,
     };
   }, [grantAmount, successRate, grantDuration, cis, teamFTE]);
-
-  // ── Export ──
-  const resultsRef = useRef<HTMLDivElement>(null);
-
-  const handleExport = useCallback(async (format: "pdf" | "png") => {
-    const el = resultsRef.current;
-    if (!el) return;
-    try {
-      const canvas = await html2canvas(el, {
-        backgroundColor: "#0d1117",
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-      if (format === "png") {
-        const link = document.createElement("a");
-        link.download = "GRASP_results.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      } else {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF({
-          orientation: canvas.width > canvas.height ? "landscape" : "portrait",
-          unit: "px",
-          format: [canvas.width / 2, canvas.height / 2],
-        });
-        pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
-        pdf.save("GRASP_results.pdf");
-      }
-    } catch (e) {
-      console.error("Export failed", e);
-    }
-  }, []);
 
   // ── CI management ──
   const addCI = useCallback(() => {
@@ -878,34 +842,7 @@ export default function Home() {
                       Szilard Point: {fmtPct(calc.szilardFTE)} FTE
                     </div>
                   )}
-                  {calc && (
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => handleExport("png")}
-                        title="Export as PNG image"
-                        style={{
-                          display: "flex", alignItems: "center", gap: 4,
-                          padding: "4px 10px", borderRadius: 6, fontSize: "0.72rem",
-                          background: "oklch(0.22 0.06 255)", border: "1px solid oklch(0.32 0.06 255)",
-                          color: "oklch(0.75 0.04 255)", cursor: "pointer",
-                        }}
-                      >
-                        <Download size={11} /> PNG
-                      </button>
-                      <button
-                        onClick={() => handleExport("pdf")}
-                        title="Export as PDF"
-                        style={{
-                          display: "flex", alignItems: "center", gap: 4,
-                          padding: "4px 10px", borderRadius: 6, fontSize: "0.72rem",
-                          background: "oklch(0.22 0.06 255)", border: "1px solid oklch(0.32 0.06 255)",
-                          color: "oklch(0.75 0.04 255)", cursor: "pointer",
-                        }}
-                      >
-                        <Download size={11} /> PDF
-                      </button>
-                    </div>
-                  )}
+
                 </div>
               </div>
               <p className="text-xs mb-3" style={{ color: "oklch(0.45 0.04 255)" }}>
