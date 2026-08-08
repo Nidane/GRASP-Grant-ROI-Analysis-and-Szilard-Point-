@@ -350,7 +350,7 @@ export default function Home() {
         <div className="container py-4 flex items-start justify-between gap-4">
           <div>
             <h1
-              className="text-xl font-bold leading-tight"
+              className="text-lg sm:text-xl font-bold leading-tight"
               style={{ fontFamily: "'Playfair Display', serif", color: "oklch(0.94 0.01 255)" }}
             >
               GRASP
@@ -358,7 +358,7 @@ export default function Home() {
             <p className="text-xs mt-0.5" style={{ color: "oklch(0.50 0.04 255)" }}>
               <span style={{ color: "oklch(0.65 0.10 65)" }}>Grant ROI Analysis and Szilard Point Platform</span>
               {" — "}Based on Ni &amp; Nanan (2026),{" "}
-              <em>When grant writing costs more than it pays: A return-on-investment analysis</em>
+              <em className="hidden sm:inline">When grant writing costs more than it pays: A return-on-investment analysis</em>
             </p>
           </div>
           <div className="relative shrink-0">
@@ -526,7 +526,7 @@ export default function Home() {
               </p>
               <div className="space-y-3">
                 {cis.map((ci, idx) => (
-                  <div key={ci.id} className="flex gap-2 items-start">
+                  <div key={ci.id} className="flex gap-2 items-start flex-wrap sm:flex-nowrap">
                     <div className="flex-1 space-y-1.5">
                       <input
                         className="navy-input text-sm"
@@ -590,7 +590,7 @@ export default function Home() {
               <p className="text-xs mb-4" style={{ color: "oklch(0.50 0.04 255)" }}>
                 What percentage of each investigator's annual working time will be devoted to writing this application? (Applied uniformly across the team.)
               </p>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 flex-wrap">
                 <input
                   type="range"
                   min="1"
@@ -759,10 +759,10 @@ export default function Home() {
             )}
 
             {/* Key metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {/* ROI Gauge */}
               <div
-                className="col-span-2 rounded-xl p-5 flex flex-col items-center justify-center"
+                className="col-span-2 rounded-xl p-4 sm:p-5 flex flex-col items-center justify-center"
                 style={{ background: "oklch(0.18 0.04 255)", border: "1px solid oklch(0.24 0.04 255)" }}
               >
                 <ROIGauge roi={calc?.roi ?? null} />
@@ -850,8 +850,8 @@ export default function Home() {
               </p>
 
               {calc ? (
-                <ResponsiveContainer width="100%" height={240}>
-                  <AreaChart data={calc.chartData} margin={{ top: 5, right: 16, left: 0, bottom: 20 }}>
+                <ResponsiveContainer width="100%" height={240} className="chart-container">
+                  <AreaChart data={calc.chartData} margin={{ top: 20, right: 16, left: 0, bottom: 28 }}>
                     <defs>
                       <linearGradient id="roiGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="oklch(0.60 0.18 145)" stopOpacity={0.35} />
@@ -864,11 +864,11 @@ export default function Home() {
                       tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
                       ticks={[0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40]}
                       domain={[0, 0.40]}
-                      tick={{ fill: "oklch(0.48 0.04 255)", fontSize: 10 }}
+                      tick={{ fill: "oklch(0.48 0.04 255)", fontSize: 9 }}
                       axisLine={{ stroke: "oklch(0.26 0.04 255)" }}
                       tickLine={false}
                       label={{
-                        value: "Time Invested — Full-Time Equivalent (FTE)",
+                        value: "Time Invested (FTE)",
                         position: "insideBottom",
                         offset: -12,
                         fill: "oklch(0.42 0.04 255)",
@@ -989,7 +989,7 @@ export default function Home() {
                 >
                   Calculation Summary
                 </h2>
-                <table className="w-full text-sm">
+                <table className="w-full text-sm calc-summary-table">
                   <tbody>
                     {[
                       ["Grant amount requested", fmtCurrency(calc.amount)],

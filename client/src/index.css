@@ -190,3 +190,45 @@
     gap: 0.375rem;
   }
 }
+
+/* ── Mobile optimisations ─────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Tighter container padding on mobile */
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* Formula block: smaller text, less padding */
+  .formula-block {
+    font-size: 0.78rem;
+    padding: 0.75rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Szilard badge: allow wrapping on very small screens */
+  .szilard-badge {
+    white-space: normal;
+    font-size: 0.72rem;
+  }
+
+  /* Calculation summary table: allow label wrapping */
+  .calc-summary-table td {
+    font-size: 0.78rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    word-break: break-word;
+  }
+
+  /* Chart container: reduce height slightly on mobile */
+  .chart-container {
+    height: 200px !important;
+  }
+
+  /* Result number: scale down on mobile */
+  .result-number {
+    font-size: 1.5rem !important;
+  }
+}
