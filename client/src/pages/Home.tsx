@@ -178,7 +178,7 @@ function CustomTooltip({ active, payload, label }: any) {
       className="rounded-lg px-3 py-2 text-sm shadow-xl"
       style={{
         background: "oklch(0.18 0.04 255)",
-        border: `1px solid ${nearSzilard ? "oklch(0.75 0.15 65)" : "oklch(0.30 0.04 255)"}`,
+        border: `1px solid ${nearSzilard ? "oklch(0.75 0.15 65)" : roi > 1 && !nearSzilard ? "oklch(0.45 0.18 145)" : "oklch(0.30 0.04 255)"}`,
         color: "oklch(0.94 0.01 255)",
         maxWidth: 230,
       }}
@@ -187,6 +187,11 @@ function CustomTooltip({ active, payload, label }: any) {
         Time Invested (FTE): {(label * 100).toFixed(1)}%
       </div>
       <div style={{ color, fontWeight: 600 }}>Est. ROI: {fmt(roi, 3)}</div>
+      {roi > 1 && !nearSzilard && (
+        <div style={{ color: "oklch(0.70 0.18 145)", marginTop: 5, fontSize: "0.70rem", lineHeight: 1.45 }}>
+          ✓ Above Szilard Point — the estimated expected grant value exceeds the writing cost. The application is estimated to be financially justified at this level of time investment.
+        </div>
+      )}
       {nearSzilard && (
         <div style={{ color: "oklch(0.85 0.12 65)", marginTop: 5, fontSize: "0.70rem", lineHeight: 1.45 }}>
           ⚠ Near the Szilard Point — the threshold where writing cost equals the expected grant value. Writing beyond this point costs more than it is expected to return.
